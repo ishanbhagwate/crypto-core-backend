@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model News {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  source    String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cryptocurrency {
+  id                Int      @id
+  name              String
+  symbol            String
+  slug              String
+  cmcRank           Int
+  logo              String?
+  circulatingSupply Float
+  totalSupply       Float
+  maxSupply         Float?
+  infiniteSupply    Boolean
+  lastUpdated       DateTime
+  dateAdded         DateTime
+  quotes            Quote[]
+}
+
+model Quote {
+  id                    Int            @id @default(autoincrement())
+  currency              String //USD or BTC
+  price                 Float
+  volume24h             Float
+  volumeChange24h       Float
+  percentChange1h       Float
+  percentChange24h      Float
+  percentChange7d       Float
+  marketCap             Float
+  marketCapDominance    Float
+  fullyDilutedMarketCap Float
+  lastUpdated           DateTime
+  cryptocurrencyId      Int
+  cryptocurrency        Cryptocurrency @relation(fields: [cryptocurrencyId], references: [id])
+}
+
+model Overview {
+  id                              Int      @id @default(autoincrement())
+  activeCryptocurrencies          Int
+  totalCryptocurrencies           Int
+  activeMarketPairs               Int
+  activeExchanges                 Int
+  totalExchanges                  Int
+  ethDominance                    Float
+  btcDominance                    Float
+  ethDominanceYesterday           Float
+  btcDominanceYesterday           Float
+  ethDominance24hPercentageChange Float
+  btcDominance24hPercentageChange Float
+  defiVolume24h                   Float
+  defiVolume24hReported           Float
+  defiMarketCap                   Float
+  defi24hPercentageChange         Float
+  stablecoinVolume24h             Float
+  stablecoinVolume24hReported     Float
+  stablecoinMarketCap             Float
+  stablecoin24hPercentageChange   Float
+  derivativesVolume24h            Float
+  derivativesVolume24hReported    Float
+  derivatives24hPercentageChange  Float
+  lastUpdated                     DateTime
+
+  //quote USD
+  totalMarketCap                          Float
+  totalVolume24h                          Float
+  totalVolume24hReported                  Float
+  altcoinVolume24h                        Float
+  altcoinVolume24hReported                Float
+  altcoinMarketCap                        Float
+  defiQuoteVolume24h                      Float
+  defiQuoteVolume24hReported              Float
+  defiQuote24hPercentageChange            Float
+  defiQuoteMarketCap                      Float
+  stablecoinQuoteVolume24h                Float
+  stablecoinQuoteVolume24hReported        Float
+  stablecoinQuote24hPercentageChange      Float
+  stablecoinQuoteMarketCap                Float
+  derivativesQuoteVolume24h               Float
+  derivativesQuoteVolume24hReported       Float
+  derivativesQuote24hPercentageChange     Float
+  totalMarketCapYesterday                 Float
+  totalVolume24hYesterday                 Float
+  totalMarketCapYesterdayPercentageChange Float
+  totalVolume24hYesterdayPercentageChange Float
+}
