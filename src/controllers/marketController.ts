@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 
-import axios from "axios";
 import prisma from "../lib/prisma";
 
 export const getAllCoins = async (req: Request, res: Response) => {

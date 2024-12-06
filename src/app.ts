@@ -5,6 +5,8 @@ import express, { Request, Response } from "express";
 
 import authRoutes from "./routes/authRoutes";
 import marketRoutes from "./routes/marketRoutes";
+import newsRoutes from "./routes/newsRoutes";
+import searchRoutes from "./routes/searchRoutes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +16,8 @@ app.use(express.json());
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/crypto", marketRoutes);
+app.use("/api/v1/news", newsRoutes);
+app.use("/api/v1/search", searchRoutes);
 
 // Start server
 app.listen(PORT, () => {

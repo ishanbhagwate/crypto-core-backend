@@ -3,8 +3,8 @@ import { getLatestNews, getNewsById } from "../controllers/newsController";
 
 const router = Router();
 
-router.get("/news", getLatestNews);
+router.get("/", getLatestNews);
 
-router.get("/news:id", getNewsById);
+router.get("/:id", getNewsById);
 
 export default router;

@@ -117,7 +117,7 @@ async function fetchCryptoData() {
           "X-CMC_PRO_API_KEY": process.env.API_KEY,
         },
         params: {
-          limit: 400,
+          limit: 200,
         },
       }
     );

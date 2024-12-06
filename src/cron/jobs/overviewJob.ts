@@ -193,6 +193,9 @@ async function updateOverview() {
         overviewData.quote.USD.total_market_cap_yesterday_percentage_change,
       totalVolume24hYesterdayPercentageChange:
         overviewData.quote.USD.total_volume_24h_yesterday_percentage_change,
+      fearValue: fearAndGreedData.value,
+      fearValueClassification: fearAndGreedData.value_classification,
+      fearValueLastUpdated: fearAndGreedData.update_time,
     },
     create: {
       id: 1,
@@ -256,6 +259,9 @@ async function updateOverview() {
         overviewData.quote.USD.total_market_cap_yesterday_percentage_change,
       totalVolume24hYesterdayPercentageChange:
         overviewData.quote.USD.total_volume_24h_yesterday_percentage_change,
+      fearValue: fearAndGreedData.value,
+      fearValueClassification: fearAndGreedData.value_classification,
+      fearValueLastUpdated: fearAndGreedData.update_time,
     },
   });
 }

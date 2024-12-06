@@ -15,16 +15,6 @@ model User {
   createdAt DateTime @default(now())
 }
 
-model News {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  source    String
-  url       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model Cryptocurrency {
   id                Int      @id
   name              String
@@ -106,4 +96,24 @@ model Overview {
   totalVolume24hYesterday                 Float
   totalMarketCapYesterdayPercentageChange Float
   totalVolume24hYesterdayPercentageChange Float
+
+  fearValue               Int
+  fearValueLastUpdated    DateTime
+  fearValueClassification String
+}
+
+model News {
+  id           Int      @id @default(autoincrement())
+  kind         String
+  domain       String
+  sourceTitle  String
+  sourceRegion String
+  sourceDomain String
+  sourcePath   String?
+  sourceType   String
+  title        String
+  publishedAt  DateTime
+  slug         String
+  url          String
+  createdAt    DateTime @default(now())
 }
