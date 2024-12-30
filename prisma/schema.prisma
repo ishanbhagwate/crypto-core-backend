@@ -13,6 +13,7 @@ model User {
   username         String?
   email            String    @unique
   password         String
+  refreshToken     String?
   resetToken       Int?
   resetTokenExpiry DateTime?
   createdAt        DateTime  @default(now())

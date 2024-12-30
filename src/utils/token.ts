@@ -1,16 +1,30 @@
 import jwt from "jsonwebtoken";
-import { getjwtSecret } from "../config/env";
+import {
+  getAccessTokenJwtSecret,
+  getRefresgTokenJwtSecret,
+} from "../config/env";
+import { User } from "@prisma/client";
 
-export const generateToken = (user: Object): string => {
-  return jwt.sign(user, getjwtSecret(), {
-    expiresIn: "7d",
-  });
+export const generateAccessToken = (user: User): string => {
+  return jwt.sign(
+    { id: user.id, email: user.email },
+    getAccessTokenJwtSecret(),
+    {
+      expiresIn: "15m",
+    }
+  );
 };
 
-export const verifyToken = (token: string): any => {
-  return jwt.verify(token, getjwtSecret());
+export const generateRefreshToken = (user: User): string => {
+  return jwt.sign(
+    { id: user.id, email: user.email },
+    getRefresgTokenJwtSecret(),
+    {
+      expiresIn: "7d",
+    }
+  );
 };
 
 export const generateOtp = (): number => {
   return Math.floor(100000 + Math.random() * 900000);
-}; 
+};

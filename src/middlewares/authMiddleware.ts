@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { getjwtSecret } from "../config/env";
+import { getAccessTokenJwtSecret } from "../config/env";
 
 interface AuthenticationRequest extends Request {
   user?: JwtPayload | string;
@@ -20,7 +20,7 @@ export const authenticateToken = (
   }
 
   try {
-    jwt.verify(token, getjwtSecret(), async (error, payload) => {
+    jwt.verify(token, getAccessTokenJwtSecret(), async (error, payload) => {
       if (error) return res.status(403).json({ message: "Invalid token" });
 
       if (typeof payload === "object" && payload !== null && "id" in payload) {

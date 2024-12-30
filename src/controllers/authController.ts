@@ -5,9 +5,15 @@ import {
   forgotPasswordSchema,
   signupSchema,
 } from "../validations/authValidation";
-import { generateOtp, generateToken } from "../utils/token";
+import {
+  generateOtp,
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utils/token";
 import nodemailer from "nodemailer";
-import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import { getRefresgTokenJwtSecret } from "../config/env";
+import { User } from "@prisma/client";
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -35,15 +41,67 @@ export const login = async (req: Request, res: Response) => {
       return;
     }
 
-    const token = generateToken(user);
+    const token = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
-    res.status(200).json({ message: "Login successful", token });
+    res.status(200).json({ message: "Login successful", token, refreshToken });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       message: "Something went wrong",
     });
   }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  //delete refresh token
+  const { id } = req.body;
+
+  try {
+    await prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        refreshToken: null,
+      },
+    });
+
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const refresh = async (req: Request, res: Response) => {
+  //refresh token
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    res.status(403).json({
+      message: "Refresh token not provided",
+    });
+    return;
+  }
+
+  jwt.verify(
+    refreshToken,
+    getRefresgTokenJwtSecret(),
+    (err: any, user: any) => {
+      if (err) {
+        return res.status(403).json({ message: "Invalid refresh token" });
+      }
+
+      const newAccessToken = generateAccessToken(user);
+      res.status(200).json({
+        message: "Refresh token successful",
+        token: newAccessToken,
+      });
+    }
+  );
 };
 
 export const signup = async (req: Request, res: Response) => {
@@ -57,7 +115,7 @@ export const signup = async (req: Request, res: Response) => {
       name,
       username,
     });
- 
+
     if (!validatedFields.success) {
       res.status(401).json({
         messag: "Invalid fields",
@@ -89,12 +147,14 @@ export const signup = async (req: Request, res: Response) => {
       },
     });
 
-    const token = generateToken(user);
+    const token = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
     res.status(200).json({
       message: "User created",
       data: user,
       token,
+      refreshToken,
     });
   } catch (error) {
     console.error(error);
@@ -149,8 +209,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
       where: { email },
       data: { resetToken, resetTokenExpiry },
     });
-
-    
 
     //send email
     await transporter.sendMail({
