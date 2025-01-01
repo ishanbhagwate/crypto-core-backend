@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import {
   getAccessTokenJwtSecret,
-  getRefresgTokenJwtSecret,
+  getRefreshTokenJwtSecret,
 } from "../config/env";
 import { User } from "@prisma/client";
 
@@ -18,7 +18,7 @@ export const generateAccessToken = (user: User): string => {
 export const generateRefreshToken = (user: User): string => {
   return jwt.sign(
     { id: user.id, email: user.email },
-    getRefresgTokenJwtSecret(),
+    getRefreshTokenJwtSecret(),
     {
       expiresIn: "7d",
     }

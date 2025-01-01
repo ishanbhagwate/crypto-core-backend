@@ -12,8 +12,7 @@ import {
 } from "../utils/token";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
-import { getRefresgTokenJwtSecret } from "../config/env";
-import { User } from "@prisma/client";
+import { getRefreshTokenJwtSecret } from "../config/env";
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -89,7 +88,7 @@ export const refresh = async (req: Request, res: Response) => {
 
   jwt.verify(
     refreshToken,
-    getRefresgTokenJwtSecret(),
+    getRefreshTokenJwtSecret(),
     (err: any, user: any) => {
       if (err) {
         return res.status(403).json({ message: "Invalid refresh token" });
