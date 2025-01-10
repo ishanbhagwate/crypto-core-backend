@@ -10,7 +10,7 @@ export const generateAccessToken = (user: User): string => {
     { id: user.id, email: user.email },
     getAccessTokenJwtSecret(),
     {
-      expiresIn: "15m",
+      expiresIn: "1d",
     }
   );
 };

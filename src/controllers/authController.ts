@@ -3,6 +3,7 @@ import prisma from "../lib/prisma";
 import bcrypt from "bcrypt";
 import {
   forgotPasswordSchema,
+  loginSchema,
   signupSchema,
 } from "../validations/authValidation";
 import {
@@ -18,6 +19,15 @@ export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
+    let isValidated = loginSchema.safeParse({ email, password });
+
+    if (!isValidated.success) {
+      res.status(401).json({
+        messag: "Invalid email or password",
+      });
+      return;
+    }
+
     const user = await prisma.user.findUnique({
       where: {
         email,
