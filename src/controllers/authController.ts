@@ -25,7 +25,7 @@ export const login = async (req: Request, res: Response) => {
       res.status(401).json({
         messag: "Invalid email or password",
       });
-      return;
+      return; 
     }
 
     const user = await prisma.user.findUnique({
@@ -339,7 +339,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     if (!existingUser) {
       res.status(401).json({
-        messag: "Invalid or expired otp",
+        message: "Invalid or expired otp",
       });
       return;
     }
