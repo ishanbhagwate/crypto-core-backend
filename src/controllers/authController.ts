@@ -5,6 +5,8 @@ import {
   forgotPasswordSchema,
   loginSchema,
   signupSchema,
+  socialloginSchema,
+  socialSignupSchema,
 } from "../validations/authValidation";
 import {
   generateOtp,
@@ -78,12 +80,26 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const socialLogin = async (req: Request, res: Response) => {
-  const { email, deviceInfo, ipAddress } = req.body;
+  const { email, deviceInfo, ipAddress, provider, providerId } = req.body;
+
+  let isValidated = socialloginSchema.safeParse({
+    email,
+    provider,
+    providerId,
+  });
+
+  if (!isValidated.success) {
+    res.status(401).json({
+      messag: "Invalid email",
+    });
+    return;
+  }
 
   try {
     const user = await prisma.user.findUnique({
       where: {
         email,
+        provider,
       },
     });
 
@@ -247,15 +263,15 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const socialSignup = async (req: Request, res: Response) => {
-  const { email, password, username, name, deviceInfo, ipAddress } = req.body;
+  const { email, name, deviceInfo, ipAddress, provider, providerId } = req.body;
 
   try {
     //validations
-    const validatedFields = signupSchema.safeParse({
+    const validatedFields = socialSignupSchema.safeParse({
       email,
-      password,
       name,
-      username,
+      provider,
+      providerId,
     });
 
     if (!validatedFields.success) {
@@ -265,11 +281,10 @@ export const socialSignup = async (req: Request, res: Response) => {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const existingUser = await prisma.user.findUnique({
       where: {
         email,
+        provider,
       },
     });
 
@@ -284,8 +299,8 @@ export const socialSignup = async (req: Request, res: Response) => {
       data: {
         email,
         name,
-        password: hashedPassword,
-        username,
+        provider,
+        providerId,
       },
     });
 
