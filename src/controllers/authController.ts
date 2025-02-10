@@ -13,6 +13,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyPassword,
+  getUserId,
 } from "../utils/token";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
@@ -26,7 +27,7 @@ export const login = async (req: Request, res: Response) => {
 
     if (!isValidated.success) {
       res.status(401).json({
-        messag: "Invalid email or password",
+        message: "Invalid email or password",
       });
       return;
     }
@@ -39,7 +40,14 @@ export const login = async (req: Request, res: Response) => {
 
     if (!user) {
       res.status(401).json({
-        messag: "Invalid credentials",
+        message: "Invalid credentials",
+      });
+      return;
+    }
+
+    if (!user.password) {
+      res.status(401).json({
+        message: "Invalid credentials",
       });
       return;
     }
@@ -48,7 +56,7 @@ export const login = async (req: Request, res: Response) => {
 
     if (!isMatch) {
       res.status(401).json({
-        messag: "Invalid credentials",
+        message: "Invalid credentials",
       });
       return;
     }
@@ -90,7 +98,7 @@ export const socialLogin = async (req: Request, res: Response) => {
 
   if (!isValidated.success) {
     res.status(401).json({
-      messag: "Invalid email",
+      message: "Invalid email",
     });
     return;
   }
@@ -105,8 +113,9 @@ export const socialLogin = async (req: Request, res: Response) => {
 
     if (!user) {
       res.status(401).json({
-        messag: "Invalid credentials",
+        message: "Invalid credentials",
       });
+
       return;
     }
 
@@ -127,7 +136,12 @@ export const socialLogin = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json({ message: "Login successful", token, refreshToken });
+    res.status(200).json({
+      message: "Login successful",
+      data: user,
+      token,
+      refreshToken,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -141,12 +155,15 @@ export const logout = async (req: Request, res: Response) => {
   const { id, token } = req.body;
 
   try {
+    const hashedRefreshToken = await bcrypt.hash(token, 10);
+    console.log(hashedRefreshToken);
+
     await prisma.refreshToken.update({
       data: {
         isValid: false,
       },
       where: {
-        token,
+        token: hashedRefreshToken,
         userId: id,
       },
     });
@@ -171,6 +188,8 @@ export const refresh = async (req: Request, res: Response) => {
     return;
   }
 
+  const userId = await getUserId(refreshToken);
+
   jwt.verify(
     refreshToken,
     getRefreshTokenJwtSecret(),
@@ -179,11 +198,15 @@ export const refresh = async (req: Request, res: Response) => {
         return res.status(403).json({ message: "Invalid refresh token" });
       }
 
-      const newAccessToken = generateAccessToken(user);
-      res.status(200).json({
-        message: "Refresh token successful",
-        token: newAccessToken,
-      });
+      if (userId) {
+        const newAccessToken = generateAccessToken(userId);
+        return res.status(200).json({
+          message: "Refresh token successful",
+          token: newAccessToken,
+        });
+      } else {
+        return res.status(403).json({ message: "Invalid refresh token" });
+      }
     }
   );
 };
@@ -202,7 +225,7 @@ export const signup = async (req: Request, res: Response) => {
 
     if (!validatedFields.success) {
       res.status(401).json({
-        messag: "Invalid fields",
+        message: "Invalid fields",
       });
       return;
     }
@@ -248,11 +271,10 @@ export const signup = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json({
+    res.status(201).json({
       message: "User created",
-      data: user,
-      token,
-      refreshToken,
+      success: true,
+      data: { ...user, token, refreshToken },
     });
   } catch (error) {
     console.error(error);
@@ -276,7 +298,7 @@ export const socialSignup = async (req: Request, res: Response) => {
 
     if (!validatedFields.success) {
       res.status(401).json({
-        messag: "Invalid fields",
+        message: "Invalid fields",
       });
       return;
     }
@@ -346,7 +368,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     if (!validatedFields.success) {
       res.status(401).json({
-        messag: "Invalid fields",
+        message: "Invalid fields",
       });
       return;
     }
@@ -359,7 +381,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     if (!user) {
       res.status(401).json({
-        messag: "Invalid credentials",
+        message: "Invalid credentials",
       });
       return;
     }
